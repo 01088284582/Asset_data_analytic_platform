@@ -67,8 +67,8 @@ datahub-frontend:
     #override: us-west1-docker.pkg.dev/hyperscale-ai-442809/asset-data-analytic-platform-dev/datahub-frontend-react:20250915-01
     registry: us-west1-docker.pkg.dev
     repository: hyperscale-ai-442809/asset-data-analytic-platform-dev/datahub-frontend-react
-    #tag: v1.2.0.1
-    tag: 20250915-01
+    tag: v1.2.0.1
+    #tag: 20250915-01
     pullPolicy: Always
     #repository: acryldata/datahub-frontend-react
     # tag: "v0.11.0" # # defaults to .global.datahub.version
