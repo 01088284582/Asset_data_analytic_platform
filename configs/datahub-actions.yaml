@@ -1,0 +1,35 @@
+name: DataHub Ingestion Workflow
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  ingest_metadata:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install DataHub CLI
+        run: |
+          python3 -m pip install --upgrade pip wheel setuptools
+          python3 -m pip install --upgrade acryl-datahub
+          # DataHub Actions 설치도 필요하다면 추가
+          python3 -m pip install --upgrade acryl-datahub-actions
+
+      - name: Run DataHub Ingestion
+        env:
+          DATAHUB_SERVER_URL: ${{ secrets.DATAHUB_SERVER_URL }}
+        run: |
+          datahub ingest -c my_ingestion_config.yaml
