@@ -23,4 +23,4 @@ substitutions:
 
 options:
   logging: GCS_ONLY
-  logs_Bucket: 'gs://gnaix-dev-logs-bucket'
+  logs_bucket: 'gs://gnaix-dev-logs-bucket'
