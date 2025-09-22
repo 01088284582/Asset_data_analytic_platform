@@ -15,12 +15,10 @@ steps:
 images:
 - '${_GAR_LOCATION}-docker.pkg.dev/${_GCP_PROJECT_ID}/${_REPO_NAME}/datahub-frontend-react:${TAG_NAME}'
 
+logs_bucket: 'gs://gnaix-dev-logs-bucket'
+
 substitutions:
   _GCP_PROJECT_ID: hyperscale-ai-442809
   _GAR_LOCATION: us-west1
   _REPO_NAME: asset-data-analytic-platform-dev
   _VERSION: v0.0.1
-
-options:
-  logging: GCS_ONLY
-  logs_bucket: 'gs://gnaix-dev-logs-bucket'
