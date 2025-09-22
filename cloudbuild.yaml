@@ -37,7 +37,7 @@ options:
   # DataHub 개발자 가이드의 최소 요구사항(8GB 메모리)을 충족하는 고사양 머신입니다.
   # (Jenkins: 4vCPU/16GB, E2_HIGHCPU_8: 8vCPU/8GB)
   # CPU 성능이 높아 빌드 속도가 빠를 것으로 예상되므로, 이 옵션을 먼저 시도하는 것을 권장합니다.
-  machineType: 'E2_HIGHCPU_8'
+  machineType: 'E2_HIGHCPU_32'
 
   # 만약 위 'E2_HIGHCPU_8' 타입으로 빌드 시 "Out of Memory" 오류가 발생하면,
   # 아래 주석을 풀고 위의 machineType 라인을 주석 처리하여 더 높은 메모리 사양으로 시도하세요.
@@ -45,7 +45,7 @@ options:
 
 # 빌드 타임아웃을 1시간으로 넉넉하게 설정합니다.
 #timeout: 3600s
-timeout: 300s
+timeout: 1800s
 
 # 빌드 로그를 저장할 Google Cloud Storage 버킷을 지정합니다.
 logs_bucket: 'gs://gnaix-dev-logs-bucket'
