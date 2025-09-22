@@ -4,7 +4,7 @@ steps:
 - name: 'gradle:8.5-jdk17'
   entrypoint: './gradlew'
   args:
-    - ':docker:datahub-frontend-react:buildImage'
+    - ':docker:datahub-frontend:buildImage'
     - '-PdockerRegistry=${_GAR_LOCATION}-docker.pkg.dev/${_GCP_PROJECT_ID}/${_REPO_NAME}'
     - '-PdockerTag=${_VERSION}'
 
