@@ -1,20 +1,30 @@
-# cloudbuild.yaml for datahub-frontend
 steps:
-# 1단계: DataHub Frontend 도커 이미지 빌드
+# 1단계: DataHub Frontend 소스 코드 빌드 (Stage)
+# 이 단계는 Dockerfile이 복사할 파일들을 준비합니다.
 - name: 'gradle:8.5-jdk17'
   entrypoint: './gradlew'
   args:
-    - ':docker:datahub-frontend:buildImage'
-    - '-PdockerImageName=datahub-frontend-react'
-    - '-PdockerRegistry=${_GAR_LOCATION}-docker.pkg.dev/${_GCP_PROJECT_ID}/${_REPO_NAME}'
-    - '-PdockerTag=${_VERSION}'
+    - ':datahub-frontend:stage'
+    - '-x'
+    - 'yarnTest'
+    - '-x'
+    - 'yarnLint'
 
-# 2단계: Artifact Registry에 이미지 푸시
+# 2단계: Docker 이미지 빌드 및 푸시
+# 1단계에서 준비된 파일들을 사용하여 Docker 이미지를 만들고 Artifact Registry에 푸시합니다.
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['push', '${_GAR_LOCATION}-docker.pkg.dev/${_GCP_PROJECT_ID}/${_REPO_NAME}/datahub-frontend-react:${_VERSION}']
+  args:
+    - 'build'
+    - '--tag'
+    - '${_GAR_LOCATION}-docker.pkg.dev/${_GCP_PROJECT_ID}/${_REPO_NAME}/datahub-frontend:${_VERSION}'
+    - '--file'
+    - 'docker/datahub-frontend/Dockerfile'
+    - '.'
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', '${_GAR_LOCATION}-docker.pkg.dev/${_G-P_PROJECT_ID}/${_REPO_NAME}/datahub-frontend:${_VERSION}']
 
 images:
-- '${_GAR_LOCATION}-docker.pkg.dev/${_GCP_PROJECT_ID}/${_REPO_NAME}/datahub-frontend-react:${_VERSION}'
+- '${_GAR_LOCATION}-docker.pkg.dev/${_GCP_PROJECT_ID}/${_REPO_NAME}/datahub-frontend:${_VERSION}'
 
 logs_bucket: 'gs://gnaix-dev-logs-bucket'
 
