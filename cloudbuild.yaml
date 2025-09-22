@@ -20,3 +20,7 @@ substitutions:
   _GAR_LOCATION: us-west1
   _REPO_NAME: asset-data-analytic-platform-dev
   _VERSION: v0.0.1
+
+options:
+  logging: GCS_ONLY
+  logsBucket: 'gs://gnaix-dev-logs-bucket'
