@@ -13,7 +13,7 @@ steps:
   args: ['push', '${_GAR_LOCATION}-docker.pkg.dev/${_GCP_PROJECT_ID}/${_REPO_NAME}/datahub-frontend-react:${_VERSION}']
 
 images:
-- '${_GAR_LOCATION}-docker.pkg.dev/${_GCP_PROJECT_ID}/${_REPO_NAME}/datahub-frontend-react:${TAG_NAME}'
+- '${_GAR_LOCATION}-docker.pkg.dev/${_GCP_PROJECT_ID}/${_REPO_NAME}/datahub-frontend-react:${_VERSION}'
 
 logs_bucket: 'gs://gnaix-dev-logs-bucket'
 
