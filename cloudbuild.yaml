@@ -5,6 +5,7 @@ steps:
   entrypoint: './gradlew'
   args:
     - ':docker:datahub-frontend:buildImage'
+    - '-PdockerImageName=datahub-frontend-react'
     - '-PdockerRegistry=${_GAR_LOCATION}-docker.pkg.dev/${_GCP_PROJECT_ID}/${_REPO_NAME}'
     - '-PdockerTag=${_VERSION}'
 
