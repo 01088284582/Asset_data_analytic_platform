@@ -16,9 +16,11 @@ steps:
   # -----------------------------------------------------------------
   # Step 2: Docker 이미지 빌드
   # -----------------------------------------------------------------
-  # _VERSION 태그만 사용하여 이미지를 빌드합니다.
+  # DOCKER_BUILDKIT=1 환경 변수를 추가하여 BuildKit 엔진을 활성화합니다.
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Build-Image'
+    env:
+      - 'DOCKER_BUILDKIT=1'
     args:
       - 'build'
       - '-t'
@@ -30,7 +32,6 @@ steps:
 # =================================================================
 # 빌드 후 푸시할 이미지 목록
 # =================================================================
-# _VERSION 태그가 붙은 이미지만 푸시합니다.
 images:
   - '${_GAR_LOCATION}-docker.pkg.dev/${_GCP_PROJECT_ID}/${_REPO_NAME}/datahub-frontend-react:${_VERSION}'
 
@@ -50,4 +51,3 @@ options:
   machineType: 'E2_HIGHCPU_32'
 timeout: 1800s # 30분
 logs_bucket: 'gs://gnaix-dev-logs-bucket'
-
