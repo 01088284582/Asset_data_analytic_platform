@@ -50,4 +50,4 @@ options:
   machineType: 'E2_HIGHCPU_32'
 timeout: 1800s # 30분
 logs_bucket: 'gs://gnaix-dev-logs-bucket'
-```eof
+
