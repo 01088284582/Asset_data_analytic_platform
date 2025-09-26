@@ -1,18 +1,39 @@
 # =================================================================
-# Google Cloud Build for DataHub Frontend (Build & Push)
+# Google Cloud Build for DataHub Frontend (Build & Push) - Improved
 # =================================================================
 steps:
   # -----------------------------------------------------------------
-  # Step 1: Frontend 모듈 빌드
+  # Step 0: GCS에서 Gradle 캐시 복원
   # -----------------------------------------------------------------
-  - name: 'gradle:8.5-jdk17'
-    id: 'Build-Frontend'
+  # 이전 빌드에서 저장된 캐시를 가져와 빌드 속도를 향상시킵니다.
+  - name: 'gcr.io/cloud-builders/gsutil'
+    id: 'Restore-Cache'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
+        gsutil -m rsync gs://${_CACHE_BUCKET}/gradle_cache /root/.gradle || echo "Cache not found"
+    volumes:
+      - name: 'gradle_cache'
+        path: '/root/.gradle'
+
+  # -----------------------------------------------------------------
+  # Step 1: Frontend 모듈 빌드 (Gradle 캐시 적용)
+  # -----------------------------------------------------------------
+  - name: 'gradle:8.5-jdk17'
+    id: 'Build-Frontend'
+    entrypoint: 'bash'
+    # Gradle 캐시를 위한 볼륨 마운트
+    volumes:
+      - name: 'gradle_cache'
+        path: '/root/.gradle'
+    args:
+      - '-c'
+      - |
+        # 운영 환경 빌드에서는 테스트와 린트를 포함하는 것을 권장합니다.
+        # 예: ./gradlew :datahub-frontend:stage
         chmod +x ./gradlew && ./gradlew :datahub-frontend:stage -x yarnTest -x yarnLint
-  
+
   # -----------------------------------------------------------------
   # Step 2: Docker 이미지 빌드
   # -----------------------------------------------------------------
@@ -24,30 +45,60 @@ steps:
     args:
       - 'build'
       - '-t'
-      - '${_GAR_LOCATION}-docker.pkg.dev/${_GCP_PROJECT_ID}/${_REPO_NAME}/datahub-frontend-react:${_VERSION}'
+      # 동적 버전 관리를 위해 Cloud Build 기본 제공 변수인 ${SHORT_SHA} 사용
+      - '${_GAR_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/datahub-frontend-react:${SHORT_SHA}'
+      - '-t'
+      # latest 태그도 함께 추가합니다.
+      - '${_GAR_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/datahub-frontend-react:latest'
       - '-f'
       - 'docker/datahub-frontend/Dockerfile'
+      - '--cache-from' # Docker 레이어 캐시를 사용하여 이미지 빌드 속도를 높입니다.
+      - '${_GAR_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/datahub-frontend-react:latest'
       - '.'
+
+  # -----------------------------------------------------------------
+  # Step 3: GCS에 Gradle 캐시 저장
+  # -----------------------------------------------------------------
+  # 다음 빌드를 위해 현재 빌드의 캐시를 GCS에 저장합니다.
+  - name: 'gcr.io/cloud-builders/gsutil'
+    id: 'Save-Cache'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gsutil -m rsync /root/.gradle gs://${_CACHE_BUCKET}/gradle_cache
+    volumes:
+      - name: 'gradle_cache'
+        path: '/root/.gradle'
 
 # =================================================================
 # 빌드 후 푸시할 이미지 목록
 # =================================================================
 images:
-  - '${_GAR_LOCATION}-docker.pkg.dev/${_GCP_PROJECT_ID}/${_REPO_NAME}/datahub-frontend-react:${_VERSION}'
+  - '${_GAR_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/datahub-frontend-react:${SHORT_SHA}'
+  - '${_GAR_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/datahub-frontend-react:latest'
 
 # =================================================================
 # 사용자 정의 변수
 # =================================================================
 substitutions:
-  _GCP_PROJECT_ID: hyperscale-ai-442809
   _GAR_LOCATION: us-west1
   _REPO_NAME: asset-data-analytic-platform-dev
-  _VERSION: v0.0.2
+  # Gradle 캐시를 저장할 GCS 버킷 이름을 지정해주세요.
+  _CACHE_BUCKET:  gnaix-dev-datahub-build-cache
+  # _GCP_PROJECT_ID는 Cloud Build 기본 제공 변수인 ${PROJECT_ID}로 대체되었습니다.
+  # _VERSION은 Git 커밋 해시를 사용하는 ${SHORT_SHA}로 대체되었습니다.
 
 # =================================================================
 # 빌드 환경 설정
 # =================================================================
 options:
+  # 빌드 시간을 모니터링하고, 가능하다면 비용 효율적인 머신 타입으로 변경하는 것을 고려해보세요. (예: E2_HIGHCPU_8)
   machineType: 'E2_HIGHCPU_32'
 timeout: 1800s # 30분
 logs_bucket: 'gs://gnaix-dev-logs-bucket'
+
+# 여러 빌드 단계 간에 파일을 공유하기 위한 볼륨 정의
+volumes:
+- name: 'gradle_cache'
+  path: 'gradle_cache_volume'
