@@ -42,7 +42,7 @@ substitutions:
   _GCP_PROJECT_ID: hyperscale-ai-442809
   _GAR_LOCATION: us-west1
   _REPO_NAME: asset-data-analytic-platform-dev
-  _VERSION: v0.0.1
+  _VERSION: v0.0.2
 
 # =================================================================
 # 빌드 환경 설정
@@ -50,4 +50,4 @@ substitutions:
 options:
   machineType: 'E2_HIGHCPU_32'
 timeout: 1800s # 30분
-logs_bucket: 'gs://gnaix-dev-logs-bucket'
+#logs_bucket: 'gs://gnaix-dev-logs-bucket'
