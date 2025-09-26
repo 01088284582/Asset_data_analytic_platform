@@ -1,1 +1,53 @@
+# =================================================================
+# Google Cloud Build for DataHub Frontend (Build & Push)
+# =================================================================
+steps:
+  # -----------------------------------------------------------------
+  # Step 1: Frontend 모듈 빌드
+  # -----------------------------------------------------------------
+  - name: 'gradle:8.5-jdk17'
+    id: 'Build-Frontend'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        chmod +x ./gradlew && ./gradlew :datahub-frontend:stage -x yarnTest -x yarnLint
+  
+  # -----------------------------------------------------------------
+  # Step 2: Docker 이미지 빌드
+  # -----------------------------------------------------------------
+  # DOCKER_BUILDKIT=1 환경 변수를 추가하여 BuildKit 엔진을 활성화합니다.
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Build-Image'
+    env:
+      - 'DOCKER_BUILDKIT=1'
+    args:
+      - 'build'
+      - '-t'
+      - '${_GAR_LOCATION}-docker.pkg.dev/${_GCP_PROJECT_ID}/${_REPO_NAME}/datahub-frontend-react:${_VERSION}'
+      - '-f'
+      - 'docker/datahub-frontend/Dockerfile'
+      - '.'
 
+# =================================================================
+# 빌드 후 푸시할 이미지 목록
+# =================================================================
+images:
+  - '${_GAR_LOCATION}-docker.pkg.dev/${_GCP_PROJECT_ID}/${_REPO_NAME}/datahub-frontend-react:${_VERSION}'
+
+# =================================================================
+# 사용자 정의 변수
+# =================================================================
+substitutions:
+  _GCP_PROJECT_ID: hyperscale-ai-442809
+  _GAR_LOCATION: us-west1
+  _REPO_NAME: asset-data-analytic-platform-dev
+  _VERSION: v0.0.1
+
+# =================================================================
+# 빌드 환경 설정
+# =================================================================
+options:
+  machineType: 'E2_HIGHCPU_32'
+timeout: 1800s # 30분
+logs_bucket: 'gs://gnaix-dev-logs-bucket'
