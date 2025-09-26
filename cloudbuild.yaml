@@ -85,7 +85,7 @@ substitutions:
   _GAR_LOCATION: us-west1
   _REPO_NAME: asset-data-analytic-platform-dev
   # Gradle 캐시를 저장할 GCS 버킷 이름을 지정해주세요.
-  _CACHE_BUCKET:  gnaix-dev-datahub-build-cache
+  _CACHE_BUCKET: gnaix-dev-build-cache # 예시: your-project-id-build-cache
   # _GCP_PROJECT_ID는 Cloud Build 기본 제공 변수인 ${PROJECT_ID}로 대체되었습니다.
   # _VERSION은 Git 커밋 해시를 사용하는 ${SHORT_SHA}로 대체되었습니다.
 
@@ -102,3 +102,4 @@ logs_bucket: 'gs://gnaix-dev-logs-bucket'
 volumes:
 - name: 'gradle_cache'
   path: 'gradle_cache_volume'
+
